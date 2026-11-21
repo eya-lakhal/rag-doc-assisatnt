@@ -1,0 +1,132 @@
+[
+  {
+    "question": "What guarantees does a StatefulSet provide compared to a Deployment?",
+    "reference": "A StatefulSet provides stable, unique network identifiers, stable persistent storage, ordered and graceful deployment and scaling, and ordered automated rolling updates. If an application does not need stable identifiers or ordered deployment, a Deployment or ReplicaSet is more appropriate.",
+    "source": "workloads/controllers/statefulset.md"
+  },
+  {
+    "question": "What is a DaemonSet used for?",
+    "reference": "A DaemonSet ensures that all (or some) nodes run a copy of a Pod; when nodes are added to the cluster Pods are added to them. Typical uses are running a cluster storage daemon, a log collection daemon or a node monitoring daemon on every node.",
+    "source": "workloads/controllers/daemonset.md"
+  },
+  {
+    "question": "What is the default value of backoffLimit for a Job?",
+    "reference": "The .spec.backoffLimit of a Job is set to 6 by default; it is the number of retries before the Job is considered failed.",
+    "source": "workloads/controllers/job.md"
+  },
+  {
+    "question": "What are the possible values of concurrencyPolicy in a CronJob?",
+    "reference": "concurrencyPolicy can be Allow (the default, concurrent Jobs are allowed), Forbid (a new run is skipped if the previous Job has not finished) or Replace (the currently running Job is replaced by the new one).",
+    "source": "workloads/controllers/cron-jobs.md"
+  },
+  {
+    "question": "What are the default values of maxUnavailable and maxSurge in a Deployment rolling update?",
+    "reference": "Both maxUnavailable and maxSurge default to 25%.",
+    "source": "workloads/controllers/deployment.md"
+  },
+  {
+    "question": "What does revisionHistoryLimit control in a Deployment?",
+    "reference": ".spec.revisionHistoryLimit specifies the number of old ReplicaSets to retain to allow rollback; by default 10 are kept. Setting it to 0 means the Deployment cannot be rolled back.",
+    "source": "workloads/controllers/deployment.md"
+  },
+  {
+    "question": "What is the difference between liveness, readiness and startup probes?",
+    "reference": "A liveness probe tells the kubelet when to restart a container; a readiness probe tells when a container is ready to accept traffic, and a Pod that is not ready is removed from Service load balancers; a startup probe tells when the application has started and disables liveness and readiness checks until it succeeds, which is useful for slow-starting containers.",
+    "source": "workloads/pods/probes.md"
+  },
+  {
+    "question": "What are the Pod QoS classes and in which order are Pods evicted under node resource pressure?",
+    "reference": "The QoS classes are Guaranteed, Burstable and BestEffort. When a node runs out of resources, Kubernetes first evicts BestEffort Pods, then Burstable Pods, and finally Guaranteed Pods.",
+    "source": "workloads/pods/pod-qos.md"
+  },
+  {
+    "question": "How do init containers differ from regular containers?",
+    "reference": "Init containers run before the app containers during Pod initialization; they always run to completion, and they run sequentially, each one must succeed before the next one starts. If an init container fails, the kubelet restarts it until it succeeds (unless the restartPolicy is Never).",
+    "source": "workloads/pods/init-containers.md"
+  },
+  {
+    "question": "What is the default grace period when a Pod is deleted?",
+    "reference": "The default termination grace period is 30 seconds. The kubelet sends a TERM signal to the main process of each container and, once the grace period expires, sends KILL to remaining processes.",
+    "source": "workloads/pods/pod-termination.md"
+  },
+  {
+    "question": "How do you declare a sidecar container in a Pod?",
+    "reference": "A sidecar container is declared as an init container with restartPolicy set to Always. Kubernetes keeps it running for the whole life of the Pod, after it starts, unlike regular init containers that must complete.",
+    "source": "workloads/pods/sidecar-containers.md"
+  },
+  {
+    "question": "What is a static Pod?",
+    "reference": "A static Pod is managed directly by the kubelet on a specific node, without the API server observing it. The kubelet creates a mirror Pod on the API server for each static Pod so it is visible, but it cannot be controlled from there.",
+    "source": "workloads/pods/static-pods.md"
+  },
+  {
+    "question": "What is the maximum size of the data stored in a ConfigMap, and is it secure?",
+    "reference": "The data stored in a ConfigMap cannot exceed 1 MiB. A ConfigMap does not provide secrecy or encryption; confidential data should be stored in a Secret instead.",
+    "source": "configuration/configmap.md"
+  },
+  {
+    "question": "Are Kubernetes Secrets encrypted by default?",
+    "reference": "No. Secrets are by default stored unencrypted in the API server's underlying data store (etcd); anyone with API or etcd access can read them. You should enable encryption at rest and configure RBAC least-privilege access.",
+    "source": "configuration/secret.md"
+  },
+  {
+    "question": "What Service types does Kubernetes support?",
+    "reference": "The Service types are ClusterIP (the default, reachable only inside the cluster), NodePort (exposes the Service on each node's IP at a static port), LoadBalancer (exposes it externally using an external load balancer) and ExternalName (maps the Service to a DNS name via a CNAME record).",
+    "source": "services-networking/service.md"
+  },
+  {
+    "question": "By default, are Pods isolated for ingress and egress traffic?",
+    "reference": "No. By default a Pod is non-isolated for both ingress and egress: all inbound and outbound connections are allowed. A Pod becomes isolated for a direction when a NetworkPolicy selects it and has that direction in its policyTypes.",
+    "source": "services-networking/network-policies.md"
+  },
+  {
+    "question": "What is the status of the Ingress API and what is recommended instead?",
+    "reference": "The Ingress API is frozen: it is still available but no longer receives new features. Kubernetes recommends using the Gateway API instead.",
+    "source": "services-networking/ingress.md"
+  },
+  {
+    "question": "What access modes can a PersistentVolume have?",
+    "reference": "ReadWriteOnce (read-write by a single node), ReadOnlyMany (read-only by many nodes), ReadWriteMany (read-write by many nodes) and ReadWriteOncePod (read-write by a single Pod).",
+    "source": "storage/persistent-volumes.md"
+  },
+  {
+    "question": "What are the reclaim policies of a PersistentVolume?",
+    "reference": "The reclaim policies are Retain (manual reclamation), Delete (the volume and its storage asset are deleted) and Recycle, which is deprecated in favour of dynamic provisioning.",
+    "source": "storage/persistent-volumes.md"
+  },
+  {
+    "question": "Which namespaces exist when a Kubernetes cluster starts?",
+    "reference": "Kubernetes starts with four initial namespaces: default, kube-node-lease (holds Lease objects for node heartbeats), kube-public (readable by all clients) and kube-system (for objects created by the Kubernetes system).",
+    "source": "overview/working-with-objects/namespaces.md"
+  },
+  {
+    "question": "What types of label selectors does the Kubernetes API support?",
+    "reference": "The API supports two types of selectors: equality-based (=, ==, !=) and set-based (in, notin, exists). There is no logical OR operator; multiple requirements are combined with AND.",
+    "source": "overview/working-with-objects/labels.md"
+  },
+  {
+    "question": "What is the maximum length of a label value?",
+    "reference": "A label value must be 63 characters or less (it can be empty) and, if not empty, must begin and end with an alphanumeric character.",
+    "source": "overview/working-with-objects/labels.md"
+  },
+  {
+    "question": "What are the main components of the Kubernetes control plane and of a node?",
+    "reference": "The control plane components are kube-apiserver, etcd, kube-scheduler, kube-controller-manager and optionally cloud-controller-manager. Node components are the kubelet, kube-proxy (optional) and a container runtime.",
+    "source": "overview/components.md"
+  },
+  {
+    "question": "How often does the Horizontal Pod Autoscaler check metrics by default?",
+    "reference": "The HPA control loop runs at an interval set by the --horizontal-pod-autoscaler-sync-period flag of kube-controller-manager; the default interval is 15 seconds.",
+    "source": "workloads/autoscaling/horizontal-pod-autoscale.md"
+  },
+  {
+    "question": "What happens when you delete an object that has finalizers?",
+    "reference": "The API server marks the object for deletion by setting metadata.deletionTimestamp and returns 202 Accepted; the object stays in a terminating state until the controllers have performed their cleanup actions and removed all finalizers from the finalizers field, after which the object is deleted.",
+    "source": "overview/working-with-objects/finalizers.md"
+  },
+  {
+    "question": "How can finished Jobs be cleaned up automatically?",
+    "reference": "By setting the .spec.ttlSecondsAfterFinished field of a Job: the TTL-after-finished controller deletes the Job (and its dependent objects such as Pods) once that number of seconds has elapsed after the Job finished.",
+    "source": "workloads/controllers/ttlafterfinished.md"
+  }
+]
