@@ -16,9 +16,7 @@ htmlcov/
 data/raw/
 data/index/
 
-# Ragas intermediate outputs (the summary eval/results.md IS committed)
-eval/*.json
-!eval/testset.json
+# Ragas run log (scores_*.json, summary.json and results.md ARE committed as evidence)
 eval/*.log
 
 # IDE / OS

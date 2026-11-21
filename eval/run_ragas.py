@@ -91,10 +91,25 @@ def generate_samples(pipeline: RAGPipeline, testset: list[dict[str, str]], top_k
     return samples, sum(latencies) / len(latencies)
 
 
-def mean_ignore_nan(values: list[float]) -> float:
-    """Mean over valid scores (the small judge sometimes fails to produce parsable JSON -> NaN)."""
-    valid = [v for v in values if v is not None and not math.isnan(v)]
-    return sum(valid) / len(valid) if valid else float("nan")
+def valid_scores(values: list[float | None]) -> list[float]:
+    """Keep valid scores only (the small judge sometimes times out or returns bad JSON -> NaN)."""
+    return [v for v in values if isinstance(v, int | float) and not math.isnan(v)]
+
+
+def summarize(rows: list[dict], latency_s: float) -> dict[str, float]:
+    """Mean of each metric over valid scores, plus the number of valid scores (``<metric>_n``)."""
+    summary: dict[str, float] = {"n_questions": len(rows), "latency_s": latency_s}
+    for metric in METRICS:
+        valid = valid_scores([r.get(metric) for r in rows])
+        summary[metric] = sum(valid) / len(valid) if valid else float("nan")
+        summary[f"{metric}_n"] = len(valid)
+    return summary
+
+
+def format_cell(mean: float, n_valid: int, n_total: int) -> str:
+    """``0.783 (9/10)``: the mean is meaningless without the number of valid scores."""
+    value = "n/a" if math.isnan(mean) else f"{mean:.3f}"
+    return f"{value} ({n_valid}/{n_total})"
 
 
 def score(
@@ -130,7 +145,9 @@ def write_report(summary: dict[str, dict[str, float]], n_questions: int, judge_m
     header = "| Configuration | " + " | ".join(METRIC_LABELS[m] for m in METRICS) + " | Mean latency (s) |"
     sep = "|" + "---|" * (len(METRICS) + 2)
     rows = [
-        f"| `{name}` | " + " | ".join(f"{vals[m]:.3f}" for m in METRICS) + f" | {vals['latency_s']:.1f} |"
+        f"| `{name}` | "
+        + " | ".join(format_cell(vals[m], int(vals[f"{m}_n"]), int(vals["n_questions"])) for m in METRICS)
+        + f" | {vals['latency_s']:.1f} |"
         for name, vals in summary.items()
     ]
     marker = "<!-- RESULTS:END -->"
@@ -143,7 +160,8 @@ def write_report(summary: dict[str, dict[str, float]], n_questions: int, judge_m
             f"- Date: {date.today().isoformat()}",
             f"- Test set: {n_questions} hand-written questions (`eval/testset.json`)",
             f"- Judge LLM: `{judge_model}` (Ollama, local), embeddings: `nomic-embed-text`",
-            "- Scores are in [0, 1], higher is better; mean over questions with a valid score.",
+            "- Scores are in [0, 1], higher is better. Each cell is the mean over the questions where the judge",
+            "  returned a valid score, followed by `(valid / total)`; `n/a` = no valid score.",
             "",
             header,
             sep,
@@ -162,10 +180,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--judge-model", default=settings.llm_model, help="Ollama model used as Ragas judge")
     parser.add_argument("--limit", type=int, default=None, help="Only evaluate the first N questions")
     parser.add_argument("--only", nargs="*", help="Names of the configurations to run")
+    parser.add_argument(
+        "--report-only", action="store_true", help="Rewrite results.md from eval/summary.json (no LLM call)"
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     logging.getLogger("httpx").setLevel(logging.WARNING)
+
+    summary_path = EVAL_DIR / "summary.json"
+    if args.report_only:
+        saved = json.loads(summary_path.read_text(encoding="utf-8"))
+        write_report(saved["configs"], saved["n_questions"], saved["judge_model"], EVAL_DIR / "results.md")
+        return 0
 
     testset = load_testset(args.testset)[: args.limit]
     configs = [c for c in CONFIGS if not args.only or c.name in args.only]
@@ -180,10 +207,11 @@ def main(argv: list[str] | None = None) -> int:
         )
 
         (EVAL_DIR / f"scores_{config.name}.json").write_text(json.dumps(rows, indent=2, default=str), "utf-8")
-        summary[config.name] = {m: mean_ignore_nan([r.get(m) for r in rows]) for m in METRICS}
-        summary[config.name]["latency_s"] = latency
+        summary[config.name] = summarize(rows, latency)
         logger.info("%s -> %s", config.name, summary[config.name])
 
+    payload = {"n_questions": len(testset), "judge_model": args.judge_model, "configs": summary}
+    summary_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     write_report(summary, len(testset), args.judge_model, EVAL_DIR / "results.md")
     logger.info("Report written to %s", EVAL_DIR / "results.md")
     return 0
