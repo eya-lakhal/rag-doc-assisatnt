@@ -172,16 +172,31 @@ python -m eval.run_ragas --limit 10   # subset (what was run below)
 - Judge: the same local `llama3.2:3b` model through Ollama, embeddings `nomic-embed-text`.
 - Compared configurations: **chunk_size 500 vs 1000**, same `top_k = 3` (only one variable changes).
 
-<!-- RAGAS:START -->
-_Results: see [`eval/results.md`](eval/results.md)._
-<!-- RAGAS:END -->
+Results on the first 10 questions (cell = mean over valid judge scores, then `valid/total`):
+
+| Configuration | Faithfulness | Answer relevancy | Context precision | Context recall | Mean latency (s) |
+|---|---|---|---|---|---|
+| `chunk500_k3` | 0.375 (2/10) | 0.877 (2/10) | n/a (0/10) | 0.783 (9/10) | 58.8 |
+| `chunk1000_k3` | 1.000 (1/10) | 0.676 (4/10) | 1.000 (4/10) | 0.773 (9/10) | 75.0 |
+
+The 3B judge often timed out or returned invalid JSON, so only **context recall** is reliable (9/10 valid scores,
+equivalent for both). The answers were therefore also checked by hand against the references:
+
+| Configuration | Correct | Partial | Wrong (hallucination) |
+|---|---|---|---|
+| `chunk500_k3` | 5 | 3 | 2 |
+| `chunk1000_k3` | **8** | 2 | **0** |
+
+**Conclusion**: `chunk_size=1000` is kept as default. With 500-character chunks, lists get split across chunks and the
+model fills the gap: it invented `AllowConcurrent`/`ForbidConcurrent` for the CronJob `concurrencyPolicy` and
+reversed the QoS eviction order. The cost is ~25 % more latency (longer prompt). Details: [`eval/results.md`](eval/results.md).
 
 ---
 
 ## Limitations and possible improvements
 
-- **Latency on CPU**: ~2-3 min per answer on a laptop CPU in Docker (6 vCPU), plus several minutes the first time
-  the model is loaded. A GPU (see the commented block in `docker-compose.yml`) or native Ollama brings it to a few seconds.
+- **Latency on CPU**: 59-75 s per answer on average on a laptop CPU in Docker (6 vCPU), plus several minutes the
+  first time the model is loaded. A GPU (see the commented block in `docker-compose.yml`) or native Ollama brings it to a few seconds.
 - **Small judge**: a 3B model is a weak Ragas judge (sometimes invalid JSON → `NaN`, noisy scores). The evaluation was
   run on a 10-question subset because of CPU time. A bigger judge (e.g. `qwen2.5:14b`) and the full test set would
   give more reliable numbers.

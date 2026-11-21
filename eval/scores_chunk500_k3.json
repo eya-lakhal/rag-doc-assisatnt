@@ -1,0 +1,142 @@
+[
+  {
+    "user_input": "What guarantees does a StatefulSet provide compared to a Deployment?",
+    "retrieved_contexts": [
+      "## Using StatefulSets\n\nStatefulSets are valuable for applications that require one or more of the\nfollowing:\n\n* Stable, unique network identifiers.\n* Stable, persistent storage.\n* Ordered, graceful deployment and scaling.\n* Ordered, automated rolling updates.",
+      "# StatefulSets\n\nStatefulSet is the workload API object used to manage stateful applications.",
+      "\"at most\" guarantee for your Pods, you should consider using a\n[StatefulSet](/docs/concepts/workloads/controllers/statefulset/)."
+    ],
+    "response": "A StatefulSet provides the following guarantees compared to a Deployment:\n\n* Stable, unique network identifiers.\n* Stable, persistent storage.\n* Ordered, graceful deployment and scaling.\n\nThese guarantees are mentioned in [1] as requirements for applications that use StatefulSets. \n\nNote that there is no mention of an \"at most\" guarantee in the context provided, which was mentioned in [3].",
+    "reference": "A StatefulSet provides stable, unique network identifiers, stable persistent storage, ordered and graceful deployment and scaling, and ordered automated rolling updates. If an application does not need stable identifiers or ordered deployment, a Deployment or ReplicaSet is more appropriate.",
+    "faithfulness": NaN,
+    "answer_relevancy": NaN,
+    "llm_context_precision_with_reference": NaN,
+    "context_recall": 1.0
+  },
+  {
+    "user_input": "What is a DaemonSet used for?",
+    "retrieved_contexts": [
+      "## Alternatives to DaemonSet",
+      "# DaemonSet\n\nA _DaemonSet_ ensures that all (or some) Nodes run a copy of a Pod.  As nodes are added to the\ncluster, Pods are added to them.  As nodes are removed from the cluster, those Pods are garbage\ncollected.  Deleting a DaemonSet will clean up the Pods it created.\n\nSome typical uses of a DaemonSet are:\n\n- running a cluster storage daemon on every node\n- running a logs collection daemon on every node\n- running a node monitoring daemon on every node",
+      "In a simple case, one DaemonSet, covering all nodes, would be used for each type of daemon.\nA more complex setup might use multiple DaemonSets for a single type of daemon, but with\ndifferent flags and/or different memory and cpu requests for different hardware types."
+    ],
+    "response": "According to the Kubernetes documentation [1], a DaemonSet is typically used for running daemons on every node in the cluster. Some common examples of use cases include running a cluster storage daemon, a logs collection daemon, and a node monitoring daemon on every node. [2] Additionally, multiple DaemonSets can be used for a single type of daemon with different flags and/or memory and CPU requests for different hardware types.",
+    "reference": "A DaemonSet ensures that all (or some) nodes run a copy of a Pod; when nodes are added to the cluster Pods are added to them. Typical uses are running a cluster storage daemon, a log collection daemon or a node monitoring daemon on every node.",
+    "faithfulness": NaN,
+    "answer_relevancy": 0.8481690787134191,
+    "llm_context_precision_with_reference": NaN,
+    "context_recall": 1.0
+  },
+  {
+    "user_input": "What is the default value of backoffLimit for a Job?",
+    "retrieved_contexts": [
+      "The `.spec.backoffLimit` is set by default to 6, unless the\n[backoff limit per index](#backoff-limit-per-index) (only Indexed Job) is specified.\nWhen `.spec.backoffLimitPerIndex` is specified, then `.spec.backoffLimit` defaults\nto 2147483647 (MaxInt32).\n\nFailed Pods associated with the Job are recreated by the Job controller with an\nexponential back-off delay (10s, 20s, 40s ...) capped at ten minutes.\n\nThe number of retries is calculated in two ways:",
+      "### Pod backoff failure policy\n\nThere are situations where you want to fail a Job after some amount of retries\ndue to a logical error in configuration etc.\nTo do so, set `.spec.backoffLimit` to specify the number of retries before\nconsidering a Job as failed.",
+      "Jobs fail for the following reasons:\n- The number of Pod failures exceeded the specified `.spec.backoffLimit` in the Job\n  specification. For details, see [Pod backoff failure policy](#pod-backoff-failure-policy).\n- The Job runtime exceeded the specified `.spec.activeDeadlineSeconds`\n- An indexed Job that used `.spec.backoffLimitPerIndex` has failed indexes.\n  For details, see [Backoff limit per index](#backoff-limit-per-index).\n- The number of failed indexes in the Job exceeded the specified"
+    ],
+    "response": "According to the Kubernetes documentation, the default value of `.spec.backoffLimit` for a Job is 6, unless the [backoff limit per index](#backoff-limit-per-index) (only Indexed Job) is specified. [1]",
+    "reference": "The .spec.backoffLimit of a Job is set to 6 by default; it is the number of retries before the Job is considered failed.",
+    "faithfulness": 0.5,
+    "answer_relevancy": NaN,
+    "llm_context_precision_with_reference": NaN,
+    "context_recall": 0.8
+  },
+  {
+    "user_input": "What are the possible values of concurrencyPolicy in a CronJob?",
+    "retrieved_contexts": [
+      "Note that concurrency policy only applies to the Jobs created by the same CronJob.\nIf there are multiple CronJobs, their respective Jobs are always allowed to run concurrently.",
+      "### Concurrency policy\n\nThe `.spec.concurrencyPolicy` field is also optional.\nIt specifies how to treat concurrent executions of a Job that is created by this CronJob.\nThe spec may specify only one of the following concurrency policies:",
+      "CronJobs have limitations and idiosyncrasies.\nFor example, in certain circumstances, a single CronJob can create multiple concurrent Jobs. See the [limitations](#cron-job-limitations) below."
+    ],
+    "response": "According to the Kubernetes documentation, the possible values for the `.spec.concurrencyPolicy` field in a CronJob are:\n\n* `AllowConcurrent`: allows concurrent executions of Jobs created by the same CronJob [1].\n* `ForbidConcurrent`: forbids concurrent executions of Jobs created by the same CronJob [1].\n\nNote that if multiple CronJobs are present, their respective Jobs are always allowed to run concurrently, regardless of the concurrency policy specified for each individual CronJob [2].",
+    "reference": "concurrencyPolicy can be Allow (the default, concurrent Jobs are allowed), Forbid (a new run is skipped if the previous Job has not finished) or Replace (the currently running Job is replaced by the new one).",
+    "faithfulness": NaN,
+    "answer_relevancy": 0.9053406890684458,
+    "llm_context_precision_with_reference": NaN,
+    "context_recall": NaN
+  },
+  {
+    "user_input": "What are the default values of maxUnavailable and maxSurge in a Deployment rolling update?",
+    "retrieved_contexts": [
+      "Two parameters control the pace of a rolling update:\n\n- **`maxUnavailable`**: the maximum number of Pods that can be unavailable\n  during the update (default: 25%).\n- **`maxSurge`**: the maximum number of extra Pods that can exist above the\n  desired count during the update (default: 25%).",
+      "#### Rolling Update Deployment\n\nThe Deployment updates Pods in a rolling update\nfashion (gradually scale down the old ReplicaSets and scale up the new one) when `.spec.strategy.type==RollingUpdate`. You can specify `maxUnavailable` and `maxSurge` to control\nthe rolling update process.\n\n##### Max Unavailable",
+      "##### Max Unavailable\n\n`.spec.strategy.rollingUpdate.maxUnavailable` is an optional field that specifies the maximum number\nof Pods that can be unavailable during the update process. The value can be an absolute number (for example, 5)\nor a percentage of desired Pods (for example, 10%). The absolute number is calculated from percentage by\nrounding down. The value cannot be 0 if `.spec.strategy.rollingUpdate.maxSurge` is 0. The default value is 25%."
+    ],
+    "response": "According to [1] and [3], the default values for `maxUnavailable` and `maxSurge` in a Deployment rolling update are:\n\n- `maxUnavailable`: 25% (default)\n- `maxSurge`: 25% (default)",
+    "reference": "Both maxUnavailable and maxSurge default to 25%.",
+    "faithfulness": NaN,
+    "answer_relevancy": NaN,
+    "llm_context_precision_with_reference": NaN,
+    "context_recall": 1.0
+  },
+  {
+    "user_input": "What does revisionHistoryLimit control in a Deployment?",
+    "retrieved_contexts": [
+      "### Revision History Limit\n\nA Deployment's revision history is stored in the ReplicaSets it controls.",
+      "## Clean up Policy\n\nYou can set `.spec.revisionHistoryLimit` field in a Deployment to specify how many old ReplicaSets for\nthis Deployment you want to retain. The rest will be garbage-collected in the background. By default,\nit is 10.\n\nExplicitly setting this field to 0, will result in cleaning up all the history of your Deployment\nthus that Deployment will not be able to roll back.",
+      "`.spec.revisionHistoryLimit` is an optional field that specifies the number of old ReplicaSets to retain"
+    ],
+    "response": "The `.spec.revisionHistoryLimit` field in a Deployment controls how many old ReplicaSets for this Deployment are retained, and the rest are garbage-collected in the background. [2]",
+    "reference": ".spec.revisionHistoryLimit specifies the number of old ReplicaSets to retain to allow rollback; by default 10 are kept. Setting it to 0 means the Deployment cannot be rolled back.",
+    "faithfulness": NaN,
+    "answer_relevancy": NaN,
+    "llm_context_precision_with_reference": NaN,
+    "context_recall": 0.5
+  },
+  {
+    "user_input": "What is the difference between liveness, readiness and startup probes?",
+    "retrieved_contexts": [
+      ": Number of seconds after the container has started before startup, liveness or readiness probes are initiated. If a startup probe is defined, liveness and readiness probe delays do not begin until the startup probe has succeeded. In some older Kubernetes versions, the initialDelaySeconds might be ignored if periodSeconds was set to a value higher than initialDelaySeconds",
+      "### Startup probe\n\nStartup probes verify whether the application within a container is started.\nIf a startup probe is configured, Kubernetes does not execute liveness or\nreadiness probes until the startup probe succeeds, allowing the application\ntime to finish its initialization.\n\nThis type of probe is only executed at startup, unlike liveness and readiness\nprobes, which are run periodically.",
+      "Incorrect implementation of liveness probes can lead to cascading failures.\nThis results in restarting of container under high load; failed client requests\nas your application became less scalable; and increased workload on remaining\npods due to some failed pods. Understand the difference between liveness and\nreadiness probes and when to apply them for your app."
+    ],
+    "response": "According to the Kubernetes documentation [1][2], the main difference between liveness, readiness, and startup probes is their purpose and timing:\n\n*   Liveness probes check if a container is running and responding to requests. They are executed periodically.\n*   Readiness probes verify that a container is ready to receive traffic. Like liveness probes, they are also executed periodically.\n*   Startup probes verify whether an application within a container is started. They are only executed at startup.\n\nIn summary, liveness and readiness probes are used for ongoing health checks, while startup probes are used to ensure the application is fully initialized before allowing traffic.",
+    "reference": "A liveness probe tells the kubelet when to restart a container; a readiness probe tells when a container is ready to accept traffic, and a Pod that is not ready is removed from Service load balancers; a startup probe tells when the application has started and disables liveness and readiness checks until it succeeds, which is useful for slow-starting containers.",
+    "faithfulness": NaN,
+    "answer_relevancy": NaN,
+    "llm_context_precision_with_reference": NaN,
+    "context_recall": 0.75
+  },
+  {
+    "user_input": "What are the Pod QoS classes and in which order are Pods evicted under node resource pressure?",
+    "retrieved_contexts": [
+      "This is known as Quality of Service\n(QoS) class. Kubernetes assigns every Pod a QoS class based on the resource requests\nand limits of its component Containers. QoS classes are used by Kubernetes to decide\nwhich Pods to evict from a Node experiencing\n[Node Pressure](/docs/concepts/scheduling-eviction/node-pressure-eviction/). The possible\nQoS classes are `Guaranteed`, `Burstable`, and `BestEffort`. When a Node runs out of resources,",
+      "# Pod Quality of Service Classes\n\nThis page introduces _Quality of Service (QoS) classes_ in Kubernetes, and explains\nhow Kubernetes assigns a QoS class to each Pod as a consequence of the resource\nconstraints that you specify for the containers in that Pod. Kubernetes relies on this\nclassification to make decisions about which Pods to evict when there are not enough\navailable resources on a Node.",
+      "### BestEffort\n\nPods in the `BestEffort` QoS class can use node resources that aren't specifically assigned\nto Pods in other QoS classes. For example, if you have a node with 16 CPU cores available to the\nkubelet, and you assign 4 CPU cores to a `Guaranteed` Pod, then a Pod in the `BestEffort`\nQoS class can try to use any amount of the remaining 12 CPU cores.\n\nThe kubelet prefers to evict `BestEffort` Pods if the node comes under resource pressure."
+    ],
+    "response": "According to the Kubernetes documentation, [2], the possible Pod Quality of Service (QoS) classes are:\n\n1. `Guaranteed`\n2. `Burstable`\n3. `BestEffort`\n\nWhen a Node runs out of resources and there is not enough available resources for all Pods, the kubelet evicts Pods in the following order: [1]\n\n* First, it evicts Pods with `Guaranteed` QoS class.\n* Then, it evicts Pods with `Burstable` QoS class.\n* Finally, it evicts Pods with `BestEffort` QoS class.\n\n[1] (source: workloads/pods/pod-qos.md)\n[2] (source: workloads/pods/pod-qos.md)\n[3] Not applicable",
+    "reference": "The QoS classes are Guaranteed, Burstable and BestEffort. When a node runs out of resources, Kubernetes first evicts BestEffort Pods, then Burstable Pods, and finally Guaranteed Pods.",
+    "faithfulness": 0.25,
+    "answer_relevancy": NaN,
+    "llm_context_precision_with_reference": NaN,
+    "context_recall": 1.0
+  },
+  {
+    "user_input": "How do init containers differ from regular containers?",
+    "retrieved_contexts": [
+      "### Differences from regular containers\n\nInit containers support all the fields and features of app containers,\nincluding resource limits, [volumes](/docs/concepts/storage/volumes/), and security settings. However, the\nresource requests and limits for an init container are handled differently,\nas documented in [Resource requests and limits](#resource-sharing-within-containers).",
+      "## Differences from init containers\n\nSidecar containers work alongside the main container, extending its functionality and\nproviding additional services.",
+      "## Understanding init containers\n\nA Pod can have multiple containers\nrunning apps within it, but it can also have one or more init containers, which are run\nbefore the app containers are started.\n\nInit containers are exactly like regular containers, except:\n\n* Init containers always run to completion.\n* Each init container must complete successfully before the next one starts."
+    ],
+    "response": "Init containers differ from regular containers in that they always run to completion [3]. This means that if an init container fails, the Pod will not start. Additionally, each init container must complete successfully before the next one starts [3].",
+    "reference": "Init containers run before the app containers during Pod initialization; they always run to completion, and they run sequentially, each one must succeed before the next one starts. If an init container fails, the kubelet restarts it until it succeeds (unless the restartPolicy is Never).",
+    "faithfulness": NaN,
+    "answer_relevancy": NaN,
+    "llm_context_precision_with_reference": NaN,
+    "context_recall": 0.5
+  },
+  {
+    "user_input": "What is the default grace period when a Pod is deleted?",
+    "retrieved_contexts": [
+      "## Forced Pod termination {#pod-termination-forced}\n\nForced deletions can be potentially disruptive for some workloads and their Pods.\n\nBy default, all deletes are graceful within 30 seconds. The `kubectl delete` command supports\nthe `--grace-period=<seconds>` option which allows you to override the default and specify your\nown value.",
+      "gets deleted when the Pod gets deleted.",
+      "## Pod Termination Flow {#pod-termination-flow}\n\nPod termination flow, illustrated with an example:\n\n1. You use the `kubectl` tool to manually delete a specific Pod, with the default grace period\n   (30 seconds)."
+    ],
+    "response": "According to [1] [3], the default grace period when a Pod is deleted is 30 seconds. This can be overridden using the `--grace-period` option with `kubectl delete`.",
+    "reference": "The default termination grace period is 30 seconds. The kubelet sends a TERM signal to the main process of each container and, once the grace period expires, sends KILL to remaining processes.",
+    "faithfulness": NaN,
+    "answer_relevancy": NaN,
+    "llm_context_precision_with_reference": NaN,
+    "context_recall": 0.5
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "n_questions": 10,
+  "judge_model": "llama3.2:3b",
+  "configs": {
+    "chunk500_k3": {
+      "n_questions": 10,
+      "latency_s": 58.8,
+      "faithfulness": 0.375,
+      "faithfulness_n": 2,
+      "answer_relevancy": 0.8767548838909325,
+      "answer_relevancy_n": 2,
+      "llm_context_precision_with_reference": NaN,
+      "llm_context_precision_with_reference_n": 0,
+      "context_recall": 0.7833333333333333,
+      "context_recall_n": 9
+    },
+    "chunk1000_k3": {
+      "n_questions": 10,
+      "latency_s": 75.0,
+      "faithfulness": 1.0,
+      "faithfulness_n": 1,
+      "answer_relevancy": 0.6763915484410621,
+      "answer_relevancy_n": 4,
+      "llm_context_precision_with_reference": 0.9999999999666667,
+      "llm_context_precision_with_reference_n": 4,
+      "context_recall": 0.7731481481481483,
+      "context_recall_n": 9
+    }
+  }
+}
