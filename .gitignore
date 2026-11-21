@@ -19,6 +19,7 @@ data/index/
 # Ragas intermediate outputs (the summary eval/results.md IS committed)
 eval/*.json
 !eval/testset.json
+eval/*.log
 
 # IDE / OS
 .vscode/
