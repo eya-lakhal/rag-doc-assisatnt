@@ -86,6 +86,9 @@ def build_llm(settings: Settings) -> BaseLanguageModel:
         model=settings.llm_model,
         base_url=settings.ollama_base_url,
         temperature=settings.llm_temperature,
+        num_ctx=settings.llm_num_ctx,  # 4096 tokens fit top_k=4 chunks of 1000 chars
+        num_thread=settings.llm_num_thread,
+        keep_alive="1h",  # avoid reloading the model (slow on CPU) between requests
     )
 
 

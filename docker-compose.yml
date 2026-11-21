@@ -13,6 +13,10 @@ services:
       - "11434:11434"
     volumes:
       - ollama-models:/root/.ollama
+    environment:
+      OLLAMA_NUM_PARALLEL: "1"        # one request at a time: faster per request on CPU
+      OLLAMA_KEEP_ALIVE: "1h"         # keep models loaded (loading takes minutes on CPU)
+      OLLAMA_MAX_LOADED_MODELS: "2"   # LLM + embedding model side by side
     healthcheck:
       test: ["CMD", "ollama", "list"]
       interval: 15s

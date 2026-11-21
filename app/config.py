@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     llm_model: str = Field(default="llama3.2:3b", description="Ollama chat model used to answer")
     embedding_model: str = Field(default="nomic-embed-text", description="Ollama embedding model")
     llm_temperature: float = Field(default=0.0, ge=0.0, le=2.0)
+    llm_num_ctx: int = Field(default=4096, gt=0, description="LLM context window (tokens)")
+    llm_num_thread: int | None = Field(default=None, gt=0, description="CPU threads used by Ollama")
 
     # --- Chunking (used by ingest/build_index.py) -------------------------------------
     chunk_size: int = Field(default=1000, gt=0, description="Max characters per chunk")
