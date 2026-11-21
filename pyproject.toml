@@ -1,0 +1,26 @@
+[project]
+name = "rag-doc-assistant"
+version = "1.0.0"
+description = "RAG question answering over technical documentation (FAISS + LangChain + Ollama + FastAPI)"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "ANN"]
+ignore = ["ANN401"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI dependency injection idiom: Depends() in argument defaults is intended.
+extend-immutable-calls = ["fastapi.Depends"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
