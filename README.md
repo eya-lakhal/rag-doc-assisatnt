@@ -1,6 +1,6 @@
 # rag-doc-assistant
 
-[![CI](https://github.com/eya-lakhal/rag-doc-assisatnt/actions/workflows/ci.yml/badge.svg)](https://github.com/eya-lakhal/rag-doc-assisatnt/actions/workflows/ci.yml)
+[![CI](https://github.com/eya-lakhal/rag-doc-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/eya-lakhal/rag-doc-assistant/actions/workflows/ci.yml)
 
 Question-answering assistant over technical documentation, built on **RAG** (retrieval-augmented generation).
 It answers questions about the **Kubernetes documentation** using **only** the indexed pages, cites its
@@ -65,8 +65,8 @@ flowchart LR
 Requirements: Python 3.11, Docker Desktop.
 
 ```powershell
-git clone https://github.com/eya-lakhal/rag-doc-assisatnt.git
-cd rag-doc-assisatnt
+git clone https://github.com/eya-lakhal/rag-doc-assistant.git
+cd rag-doc-assistant
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements-dev.txt
